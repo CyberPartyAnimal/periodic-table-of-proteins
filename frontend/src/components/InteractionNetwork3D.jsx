@@ -86,14 +86,15 @@ export default function InteractionNetwork3D({ data, filters, selectedId, onSele
       if (!i.a_to_b && !i.b_to_a) links.push({ source: i.a, target: i.b, score: i.score, effect: 'binds' })
     }
     const nodes = []
+    let isolatedHidden = 0
     for (const p of visible.values()) {
-      if (hideIsolated && !degree.get(p.id)) continue
+      if (hideIsolated && !degree.get(p.id)) { isolatedHidden++; continue }
       const node = nodeCache.current.get(p.id) || { id: p.id }
       Object.assign(node, { protein: p, degree: degree.get(p.id) || 0 })
       nodeCache.current.set(p.id, node)
       nodes.push(node)
     }
-    return { nodes, links, count }
+    return { nodes, links, count, identified: visible.size, isolatedHidden }
   }, [data, filters.year, minScore, hideIsolated, effectsOnly]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const neighbors = useMemo(() => {
@@ -315,8 +316,15 @@ export default function InteractionNetwork3D({ data, filters, selectedId, onSele
       {/* Top-left: what's on screen */}
       <div className="pointer-events-none absolute left-3 top-3 max-w-[60%] text-xs text-gray-400">
         <div className="font-semibold text-gray-200">
-          {graphData.nodes.length} proteins · {graphData.count} interactions
+          {graphData.nodes.length} of {graphData.identified} proteins · {graphData.count} interactions
         </div>
+        {graphData.isolatedHidden > 0 && (
+          <div>
+            {graphData.isolatedHidden} without {effectsOnly ? 'a curated effect' : 'interactions'} hidden ·{' '}
+            <button type="button" onClick={() => setHideIsolated(false)}
+              className="pointer-events-auto text-sky-300 underline-offset-2 hover:underline">show them</button>
+          </div>
+        )}
         <div>Drag to rotate · scroll to zoom · right-drag to pan · click a protein</div>
         {selected && (
           <div className="mt-1 text-amber-200">
