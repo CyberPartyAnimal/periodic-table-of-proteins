@@ -91,8 +91,9 @@ export default function PeriodicTable({ data, filters, selectedId, partners, sho
         const key = cellKey(target)
         if (key === cellKey(selected)) continue
         const { effect, outward } = effectBetween(pt)
-        // An interaction with an out-of-pathway protein at either end is inert: drawn faded, never coloured.
-        const inert = isInert(target, filters) || isInert(selected, filters) || isLinkInert(selected.id, target.id, filters)
+        // A line fades with its proteins: if either end is faded by a filter or outside the chosen pathway.
+        const inert = isInert(target, filters) || isInert(selected, filters) || isLinkInert(selected.id, target.id, filters) ||
+          proteinState(target, filters) === 'dim' || proteinState(selected, filters) === 'dim'
         const cand = { score: pt.score, effect, outward, inert }
         const prev = best.get(key)
         const rank = (c) => (c.inert ? 10 : 0) + EFFECT_RANK[c.effect]
@@ -141,7 +142,7 @@ export default function PeriodicTable({ data, filters, selectedId, partners, sho
   }, [openCell])
 
   const ringFor = (p) => {
-    if (isInert(p, filters)) return null
+    if (isInert(p, filters) || proteinState(p, filters) === 'dim') return null
     if (showInteractions && partnerEffect.has(p.id) && !isLinkInert(selectedId, p.id, filters)) return EFFECTS[partnerEffect.get(p.id)].color
     if (filters.pathway && p.pathways.includes(filters.pathway)) return data.pathways.find((x) => x.code === filters.pathway)?.color
     if (filters.search && proteinState(p, filters) === 'on') return '#fde047'

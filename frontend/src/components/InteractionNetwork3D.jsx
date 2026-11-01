@@ -221,10 +221,16 @@ export default function InteractionNetwork3D({ data, filters, selectedId, onSele
     }
     filtersRef.current = f
     const inertIds = new Set(graphData.nodes.filter((n) => isInert(n.protein, f)).map((n) => n.id))
+    // Proteins faded by any filter (misfolded mode, drug targets, organism, search, pathway).
+    const fadedIds = new Set(graphData.nodes.filter((n) => proteinState(n.protein, f) === 'dim').map((n) => n.id))
     const isLit = (n) => !inertIds.has(n.id) && (!near || n.id === focus || near.has(n.id))
-    // Inert if either end is outside the scope, or (in a pathway view) neither end is a pathway member.
-    const linkInert = (l) => inertIds.has(endId(l.source)) || inertIds.has(endId(l.target)) ||
-      isLinkInert(endId(l.source), endId(l.target), f)
+    // A link fades with its proteins: if either end is faded or inert, or (in a pathway view) neither
+    // end is a pathway member.
+    const linkInert = (l) => {
+      const a = endId(l.source)
+      const b = endId(l.target)
+      return inertIds.has(a) || inertIds.has(b) || fadedIds.has(a) || fadedIds.has(b) || isLinkInert(a, b, f)
+    }
     const touches = (l) => focus && !linkInert(l) && (endId(l.source) === focus || endId(l.target) === focus)
 
     const nodeColor = (n) => {
