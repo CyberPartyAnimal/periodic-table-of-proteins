@@ -32,7 +32,7 @@ const EFFECT_RANK = { activates: 0, inhibits: 0, both: 1, regulates: 2, binds: 3
 /** Narrowest the table can be before its tiles would spill past its edges. */
 export const tableMinWidth = (families, narrow = false) => LABEL_COL + families * ((narrow ? 52 : 64) + GAP) + 2 * 12
 
-export default function PeriodicTable({ data, filters, selectedId, partners, showInteractions, narrow = false, pageScrolls = false, onSelect }) {
+export default function PeriodicTable({ data, filters, selectedId, partners, showInteractions, narrow = false, pageScrolls = false, onSelect, onPrefetch }) {
   const wrapRef = useRef(null)
   const cellEls = useRef({})
   const misEls = useRef({})
@@ -174,7 +174,7 @@ export default function PeriodicTable({ data, filters, selectedId, partners, sho
 
           {/* Rows: cell locations ("periods"), inside → outside */}
           {data.locations.map((loc) => (
-            <Row key={loc.code} loc={loc} data={data} cells={cells} cellEls={cellEls} arrange={arrange}
+            <Row key={loc.code} loc={loc} data={data} cells={cells} cellEls={cellEls} arrange={arrange} onPrefetch={onPrefetch}
               filters={filters} colors={colors} selectedId={selectedId} ringFor={ringFor} onSelect={onSelect}
               openCell={openCell} setOpenCell={setOpenCell} />
           ))}
@@ -207,7 +207,7 @@ export default function PeriodicTable({ data, filters, selectedId, partners, sho
   )
 }
 
-function Row({ loc, data, cells, cellEls, arrange, filters, colors, selectedId, ringFor, onSelect, openCell, setOpenCell }) {
+function Row({ loc, data, cells, cellEls, arrange, filters, colors, selectedId, ringFor, onSelect, onPrefetch, openCell, setOpenCell }) {
   return (
     <>
       <div title={loc.description} className="sticky left-0 z-30 -ml-3 flex items-center gap-2 pl-3 pr-1"
@@ -237,7 +237,7 @@ function Row({ loc, data, cells, cellEls, arrange, filters, colors, selectedId, 
                 )}
                 <Tile protein={face} color={colors[f.code]} state={proteinState(face, filters)}
                   flipped={filters.misfoldMode} organism={filters.organism} inert={isInert(face, filters)} subdued={pathwayRole(face, filters) === 'partner'} selected={face.id === selectedId}
-                  ring={ringFor(face)} onClick={() => onSelect(face.id)} />
+                  ring={ringFor(face)} onClick={() => onSelect(face.id)} onMouseEnter={() => onPrefetch?.(face.id)} />
                 {extra > 0 && (
                   <button type="button" onClick={() => setOpenCell(openCell === key ? null : key)}
                     data-cell-popover

@@ -1,5 +1,5 @@
 import { Suspense, lazy, useCallback, useEffect, useMemo, useState } from 'react'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { api } from './lib/api'
 import { matchesSearch, pathwayScope } from './lib/filters'
 import Controls from './components/Controls'
@@ -40,6 +40,25 @@ export default function App() {
     () => Object.fromEntries((data?.proteins || []).map((p) => [p.symbol.toLowerCase(), p])), [data])
 
   const select = useCallback((id, tab = 'overview') => setSelected(id ? { id, tab } : null), [])
+
+  // Interaction lines come straight from the table data already in memory, so they appear the moment a
+  // protein is clicked instead of waiting for its details file to download.
+  const selectedPartners = useMemo(() => {
+    if (!selected || !data) return null
+    const id = selected.id
+    const out = []
+    for (const i of data.interactions) {
+      if (i.a === id) out.push({ id: i.b, score: i.score, effect_out: i.a_to_b, effect_in: i.b_to_a })
+      else if (i.b === id) out.push({ id: i.a, score: i.score, effect_out: i.b_to_a, effect_in: i.a_to_b })
+    }
+    return out
+  }, [selected, data])
+
+  // Start downloading a protein's details while the pointer rests on its tile, so the panel is ready on click.
+  const queryClient = useQueryClient()
+  const prefetch = useCallback((id) => {
+    queryClient.prefetchQuery({ queryKey: ['protein', id], queryFn: () => api.protein(id) })
+  }, [queryClient])
 
   // Shareable links: #p53 opens that protein.
   useEffect(() => {
@@ -141,7 +160,7 @@ export default function App() {
           {view === 'table' ? (
             <>
               <PeriodicTable data={data} filters={viewFilters} selectedId={selected?.id} narrow={push} pageScrolls={slide}
-                partners={detail.data?.id === selected?.id ? detail.data?.partners : null}
+                partners={selectedPartners} onPrefetch={prefetch}
                 showInteractions={showInteractions} onSelect={select} />
             </>
           ) : (
