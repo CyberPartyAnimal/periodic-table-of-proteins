@@ -1,7 +1,7 @@
 import { Suspense, lazy, useCallback, useEffect, useMemo, useState } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { api } from './lib/api'
-import { matchesSearch, pathwayScope } from './lib/filters'
+import { focusScope, matchesSearch } from './lib/filters'
 import Controls from './components/Controls'
 import PeriodicTable, { tableMinWidth } from './components/PeriodicTable'
 import DetailPanel from './components/DetailPanel'
@@ -32,9 +32,9 @@ export default function App() {
   const push = !!selected && layoutMode === 'push'
   // Windowed: the panel floats over the page, and the whole page can slide sideways from under it.
   const slide = !!selected && layoutMode === 'overlay'
-  // Filters plus the current pathway's scope, shared by every view.
+  // Filters plus their focus (matching proteins + direct partners), shared by every view.
   const viewFilters = useMemo(() => ({
-    ...filters, scope: data ? pathwayScope(data.proteins, data.interactions, filters.pathway) : null,
+    ...filters, scope: data ? focusScope(data.proteins, data.interactions, filters) : null,
   }), [filters, data])
   const bySymbol = useMemo(
     () => Object.fromEntries((data?.proteins || []).map((p) => [p.symbol.toLowerCase(), p])), [data])

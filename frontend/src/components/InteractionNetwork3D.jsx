@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import ForceGraph3D from '3d-force-graph'
 import SpriteText from 'three-spritetext'
 import { forceX, forceY, forceZ } from 'd3-force-3d'
-import { FADED_COLOR, MISFOLD_KINDS, isInert, isLinkInert, pathwayRole, pathwayScope, proteinState } from '../lib/filters'
+import { FADED_COLOR, MISFOLD_KINDS, focusScope, isInert, isLinkInert, proteinState, scopeRole } from '../lib/filters'
 import { EFFECTS } from '../lib/effects'
 import { escapeHtml, safeColor } from '../lib/html'
 import { EffectSwatch } from './Legend'
@@ -216,8 +216,8 @@ export default function InteractionNetwork3D({ data, filters, selectedId, onSele
     // Pathway scope from the links actually drawn (respects the confidence slider): members + direct partners.
     const f = {
       ...filters,
-      scope: pathwayScope(graphData.nodes.map((n) => n.protein),
-        graphData.links.map((l) => ({ a: endId(l.source), b: endId(l.target) })), filters.pathway),
+      scope: focusScope(graphData.nodes.map((n) => n.protein),
+        graphData.links.map((l) => ({ a: endId(l.source), b: endId(l.target) })), filters),
     }
     filtersRef.current = f
     const inertIds = new Set(graphData.nodes.filter((n) => isInert(n.protein, f)).map((n) => n.id))
@@ -236,9 +236,10 @@ export default function InteractionNetwork3D({ data, filters, selectedId, onSele
     const nodeColor = (n) => {
       const p = n.protein
       if (proteinState(p, f) === 'dim' || !isLit(n)) return FADED_COLOR
+      // Any filter on: direct partners of the matching proteins are shown in their family colour, but dimmer.
+      if (scopeRole(p, f) === 'partner') return withAlpha(families[p.family].color, 0.5)
       if (filters.misfoldMode && p.misfolded) return MISFOLD_KINDS[p.misfolded.kind].color
-      // Pathway view: members in the pathway colour, direct partners in their family colour but dimmer.
-      if (pathwayColor) return pathwayRole(p, f) === 'member' ? pathwayColor : withAlpha(families[p.family].color, 0.5)
+      if (pathwayColor) return pathwayColor
       return families[p.family].color
     }
 

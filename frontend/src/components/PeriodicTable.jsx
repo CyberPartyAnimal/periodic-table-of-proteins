@@ -1,7 +1,7 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import Tile from './Tile'
 import MisfoldBlock from './MisfoldBlock'
-import { FADED_COLOR, anyFilterActive, isInert, isLinkInert, pathwayRole, proteinState } from '../lib/filters'
+import { FADED_COLOR, anyFilterActive, isInert, isLinkInert, proteinState, scopeRole } from '../lib/filters'
 import { EFFECTS, effectBetween } from '../lib/effects'
 
 const cellKey = (p) => `${p.family}|${p.location}`
@@ -145,7 +145,7 @@ export default function PeriodicTable({ data, filters, selectedId, partners, sho
     if (isInert(p, filters) || proteinState(p, filters) === 'dim') return null
     if (showInteractions && partnerEffect.has(p.id) && !isLinkInert(selectedId, p.id, filters)) return EFFECTS[partnerEffect.get(p.id)].color
     if (filters.pathway && p.pathways.includes(filters.pathway)) return data.pathways.find((x) => x.code === filters.pathway)?.color
-    if (filters.search && proteinState(p, filters) === 'on') return '#fde047'
+    if (filters.search && scopeRole(p, filters) === 'member') return '#fde047'
     return null
   }
 
@@ -237,7 +237,7 @@ function Row({ loc, data, cells, cellEls, arrange, filters, colors, selectedId, 
                     style={{ borderColor: colors[f.code], background: `${colors[f.code]}22` }} />
                 )}
                 <Tile protein={face} color={colors[f.code]} state={proteinState(face, filters)}
-                  flipped={filters.misfoldMode} organism={filters.organism} inert={isInert(face, filters)} subdued={pathwayRole(face, filters) === 'partner'} selected={face.id === selectedId}
+                  flipped={filters.misfoldMode} organism={filters.organism} inert={isInert(face, filters)} subdued={scopeRole(face, filters) === 'partner'} selected={face.id === selectedId}
                   ring={ringFor(face)} onClick={() => onSelect(face.id)} onMouseEnter={() => onPrefetch?.(face.id)} />
                 {extra > 0 && (
                   <button type="button" onClick={() => setOpenCell(openCell === key ? null : key)}
@@ -279,7 +279,7 @@ function CellPopover({ members, family, loc, color, filters, selectedId, ringFor
         {members.map((p) => (
           <div key={p.id} className="h-[58px]">
             <Tile protein={p} color={color} compact state={proteinState(p, filters)} flipped={filters.misfoldMode}
-              organism={filters.organism} inert={isInert(p, filters)} subdued={pathwayRole(p, filters) === 'partner'} selected={p.id === selectedId} ring={ringFor(p)} onClick={() => onSelect(p.id)} />
+              organism={filters.organism} inert={isInert(p, filters)} subdued={scopeRole(p, filters) === 'partner'} selected={p.id === selectedId} ring={ringFor(p)} onClick={() => onSelect(p.id)} />
           </div>
         ))}
       </div>
