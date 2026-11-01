@@ -1,0 +1,3 @@
+# Everyone, including search engines, may crawl the whole site.
+User-agent: *
+Allow: /
