@@ -1,0 +1,39 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+}
+
+/* The app is dark: tell the browser so native controls (scrollbars, selects) aren't drawn light. */
+:root { color-scheme: dark; }
+html, body, #root { height: 100%; }
+body { background: #0b0f17; color: #e5e7eb; }
+
+/* Scrollbars everywhere: slim, transparent, and only visible while hovering the scrolling area. */
+* { scrollbar-width: thin; scrollbar-color: transparent transparent; }
+*:hover { scrollbar-color: rgb(255 255 255 / .16) transparent; }
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track, ::-webkit-scrollbar-corner { background: transparent; }
+::-webkit-scrollbar-thumb { background: transparent; border-radius: 9999px; }
+*:hover::-webkit-scrollbar-thumb { background: rgb(255 255 255 / .16); }
+::-webkit-scrollbar-thumb:hover { background: rgb(255 255 255 / .3); }
+
+/* Detail panel slides in from the right */
+@keyframes panel-in { from { transform: translateX(24px); opacity: 0 } to { transform: none; opacity: 1 } }
+.panel-in { animation: panel-in .22s ease-out }
+
+/* Tiles flip when switching Native ⇄ Misfolded */
+@keyframes flip { from { transform: rotateY(90deg) } to { transform: rotateY(0) } }
+
+/* Interaction lines draw themselves in */
+/* Lines use pathLength="1", so the dash always equals the full line, however long. */
+@keyframes draw { from { stroke-dashoffset: 1 } to { stroke-dashoffset: 0 } }
+.interaction-line:not([stroke-dasharray]) { stroke-dasharray: 1; animation: draw .6s ease-out forwards }
+
+.timeline::-webkit-slider-thumb { appearance: none; width: 14px; height: 14px; border-radius: 9999px; background: #fcd34d; cursor: pointer }
+.timeline::-moz-range-thumb { width: 14px; height: 14px; border: 0; border-radius: 9999px; background: #fcd34d; cursor: pointer }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important }
+}

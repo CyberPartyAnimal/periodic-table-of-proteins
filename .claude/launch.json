@@ -1,0 +1,26 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "app",
+      "url": "http://127.0.0.1:5173",
+      "port": 5173
+    },
+    {
+      "name": "frontend",
+      "runtimeExecutable": "bash",
+      "runtimeArgs": [
+        "scripts/dev-frontend.sh"
+      ],
+      "port": 5173
+    },
+    {
+      "name": "backend",
+      "runtimeExecutable": "bash",
+      "runtimeArgs": [
+        "scripts/dev-backend.sh"
+      ],
+      "port": 8000
+    }
+  ]
+}

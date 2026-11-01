@@ -1,0 +1,1 @@
+{"subunit":"Interacts with FLNA. Binds to PACS1 which mediates TGN localization and connection to clathrin adapters. Interacts with LAMP1, LAMP2 and LAMP3","chains":[{"type":"Signal","start":1,"end":26,"name":null},{"type":"Propeptide","start":27,"end":107,"name":"Inhibition peptide"},{"type":"Chain","start":108,"end":794,"name":"Furin"}],"complexes":[]}

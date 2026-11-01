@@ -1,0 +1,1 @@
+{"subunit":"Heterodimer of a B chain and an A chain linked by two disulfide bonds","chains":[{"type":"Signal","start":1,"end":24,"name":null},{"type":"Peptide","start":25,"end":54,"name":"Insulin B chain"},{"type":"Propeptide","start":57,"end":87,"name":"C peptide"},{"type":"Peptide","start":90,"end":110,"name":"Insulin A chain"}],"complexes":[]}
