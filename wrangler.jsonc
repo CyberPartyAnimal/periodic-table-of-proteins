@@ -1,0 +1,10 @@
+// Cloudflare Workers deployment of the static site (Workers Builds: build command
+// `cd frontend && npm ci && npm run build`, deploy command `npx wrangler deploy`).
+// The site is plain files in frontend/dist, including the generated `_headers` security headers.
+{
+  "name": "periodic-table-of-proteins",
+  "compatibility_date": "2026-09-01",
+  "assets": {
+    "directory": "./frontend/dist"
+  }
+}
